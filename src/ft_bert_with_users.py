@@ -256,6 +256,7 @@ if __name__ == '__main__':
         logging.info("Training with SBERT, model name is {}".format(model_name))
         tokenizer = AutoTokenizer.from_pretrained(bert_checkpoint)
         model = SentBertClassifier(users_layer=USE_AUTHORS, user_dim=args.user_dim, sbert_model=args.sbert_model, sbert_dim=args.sbert_dim)
+        
     elif model_name == 'judge_bert':
         logging.info("Training with Judge Bert, model name is {}".format(model_name))
         tokenizer = BertTokenizerFast.from_pretrained("bert-base-uncased")
@@ -265,6 +266,10 @@ if __name__ == '__main__':
     
     
     model.to(DEVICE)
+    
+    if author_encoder == 'user_id':
+        tokenizer.add_tokens([f'[{author}]' for author in dataset.authorsToVerdicts.keys()])
+        model.model.resize_token_embeddings(len(tokenizer))
     
     ds = DatasetDict()
 
